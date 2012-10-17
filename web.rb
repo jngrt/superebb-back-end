@@ -3,8 +3,6 @@ require 'json'
 require 'net/http'
 require 'data_mapper'
 
-#DB = Sequel.connect(ENV['DATABASE_URL'] || 'sqlite://test.sqlite')
-
 DataMapper.setup(:default, ENV['DATABASE_URL'] ||
                  "sqlite3://#{Dir.pwd}/test.db")
 
@@ -16,6 +14,7 @@ class ShipData
   property :updated_at, DateTime
 end
 DataMapper.auto_upgrade!
+
 get '/test' do
   url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=10&fleet=&station=0"
     resp = Net::HTTP.get_response(URI.parse(url))
@@ -24,26 +23,36 @@ get '/test' do
     parsed = JSON.parse(clean)
     "raw:"+raw+"<br/><br/>clean:"+clean+"<br/><br/>json:"+parsed.inspect
 end
+
+def getShipData
+  #url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=10&fleet=&station=0"
+  #resp = Net::HTTP.get_response(URI.parse(url))
+  #raw = resp.body
+  #clean = raw.gsub(",,",",0,")
+  #check if parseable
+  #parsed = JSON.parse(clean)
+  #return clean
+  url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=10&fleet=&station=0"
+  resp = Net::HTTP.get_response(URI.parse(url))
+  raw = resp.body
+  clean = raw.gsub(",,",",0,")
+end
+
+
 get '/' do
-  if ShipData.count == 0
-  #xcoord = "4.60000000000005" + rand(1000).to_s
-  #url = "http://marinetraffic.com/ais/getjson.aspx?"+
-  #      "sw_x=3.8&sw_y=51.8&ne_x="+xcoord+
-  #      "&ne_y=52&"+
-  #      "zoom=12&fleet=&station=0"
-    url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=10&fleet=&station=0"
-    resp = Net::HTTP.get_response(URI.parse(url))
-    raw = resp.body
-    clean = raw.gsub(",,",",0,")
-    #check if parseable
-    parsed = JSON.parse(clean)
-    ship = ShipData.create(:json => clean )
-    return clean
+  
+  if ShipData.count > 0
+    if ShipData.first.updated_at < DateTime.now - (2/24.0)
+      jsonstr = getShipData()
+      if jsonstr.length > 100
+        ShipData.first().update(:json => jsonstr )
+      end        
+    end
   else
-    "got content:"+ShipData.first().json
-  end
-  #clean = raw.gsub(/,\s*,/ , ",0,")
-#parsed = JSON.parse(clean);
+    jsonstr = getShipData()
+    ShipData.create(:json => jsonstr)  
+  end  
+  ShipData.first().json
 end
 
 get '/count' do
