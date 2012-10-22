@@ -3,8 +3,10 @@ require 'json'
 require 'net/http'
 require 'aws/s3'
 
-heroku_env = File.open("heroku_env.rb")
-load(heroku_env) if File.exists?(heroku_env)
+if File.exists?("heroku_env.rb")
+  heroku_env = File.open("heroku_env.rb")
+  load(heroku_env)
+end
 
 def awsConnect
   AWS::S3::Base.establish_connection!(
