@@ -8,7 +8,6 @@ if File.exists?("heroku_env.rb")
   load(heroku_env)
 end
 
-error = "";
 
 def awsConnect
   AWS::S3::Base.establish_connection!(
@@ -18,7 +17,10 @@ def awsConnect
 end
 
 def getShipData
-  url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=13&fleet=&station=0"
+  #url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=12&fleet=&station=0"
+  #url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=13&fleet=&station=0"
+  #url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=4&sw_y=51.8&ne_x=4.6&ne_y=53&zoom=13&fleet=&station=0"
+  url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=4&sw_y=51.8&ne_x=5&ne_y=52.2&zoom=12&fleet=&station=0"
   resp = Net::HTTP.get_response(URI.parse(url))
   raw = resp.body
   clean = raw.gsub(",,",",0,")
@@ -29,7 +31,7 @@ def refreshData
   if jsonstr.length > 2000 #make sure we have enough json data, otherwise fall back
     AWS::S3::S3Object.store("data.json",jsonstr,ENV['AWS_BUCKET'])
   else
-    error = "json data not long enough:"+jsonstr;
+    @error = "json data not long enough:"+jsonstr;
   end
 end
 
@@ -71,8 +73,8 @@ end
 get '/refresh' do
   awsConnect
   refreshData
-  if error.length > 0
-    return error
+  if defined? @error
+    return @error
   else
     return "refresh done"
   end
