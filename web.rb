@@ -16,7 +16,7 @@ def awsConnect
 end
 
 def getShipData
-  url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=10&fleet=&station=0"
+  url = "http://marinetraffic.com/ais/getjson.aspx?sw_x=3&sw_y=51&ne_x=5&ne_y=53&zoom=13&fleet=&station=0"
   resp = Net::HTTP.get_response(URI.parse(url))
   raw = resp.body
   clean = raw.gsub(",,",",0,")
