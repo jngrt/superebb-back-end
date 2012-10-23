@@ -8,6 +8,8 @@ if File.exists?("heroku_env.rb")
   load(heroku_env)
 end
 
+error = "";
+
 def awsConnect
   AWS::S3::Base.establish_connection!(
     :access_key_id => ENV['AWS_ACCESS_KEY_ID'],
@@ -26,8 +28,11 @@ def refreshData
   jsonstr = getShipData
   if jsonstr.length > 2000 #make sure we have enough json data, otherwise fall back
     AWS::S3::S3Object.store("data.json",jsonstr,ENV['AWS_BUCKET'])
+  else
+    error = "json data not long enough:"+jsonstr;
   end
 end
+
 
 get '/' do
   awsConnect
@@ -66,5 +71,9 @@ end
 get '/refresh' do
   awsConnect
   refreshData
-  "refresh done"
+  if error.length > 0
+    return error
+  else
+    return "refresh done"
+  end
 end
