@@ -62,3 +62,9 @@ get '/date' do
   end
   "file not found"
 end
+
+get '/refresh' do
+  awsConnect
+  refreshData
+  "refresh done"
+end
