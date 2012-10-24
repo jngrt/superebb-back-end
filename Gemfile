@@ -3,6 +3,7 @@ gem 'sinatra', '1.1.0'
 gem 'thin'
 
 gem 'aws-s3'
+gem 'mechanize'
 #gem 'data_mapper'
 #gem 'active_support'
 
