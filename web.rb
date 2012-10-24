@@ -28,6 +28,7 @@ end
 
 def refreshData
   jsonstr = getShipData
+
   if jsonstr.length > 2000 #make sure we have enough json data, otherwise fall back
     AWS::S3::S3Object.store("data.json",jsonstr,ENV['AWS_BUCKET'])
   else
@@ -79,3 +80,16 @@ get '/refresh' do
     return "refresh done"
   end
 end
+
+get '/test' do
+  awsConnect
+  str = AWS::S3::S3Object.value "data.json", ENV['AWS_BUCKET']
+begin
+  json = JSON.parse(str)
+rescue JSON::ParserError => e
+  return e.to_s
+end
+
+  return 'valid json: \n'+json.to_s
+end
+    
