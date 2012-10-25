@@ -110,7 +110,7 @@ get '/date' do
   if AWS::S3::S3Object.exists? "data.json", ENV['AWS_BUCKET']
     s3file = AWS::S3::S3Object.find "data.json", ENV['AWS_BUCKET']
     mod = DateTime.parse s3file.about['last-modified']
-    return mod.strftime("%d/%m/%Y %R")
+    return mod.strftime("%d-%m-%Y %R")
   end
   "file not found"
 end
