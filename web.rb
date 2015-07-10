@@ -27,7 +27,8 @@ def getMechData
     #puts "trying to load, got page:"
     #puts page.body
            
-    a.get('http://marinetraffic.com/ais/getjson.aspx?sw_x=4&sw_y=51.8&ne_x=4.6000000000000005&ne_y=52&zoom=12&fleet=&station=0',[],page) do |jsonpage|
+    #a.get('http://marinetraffic.com/ais/getjson.aspx?sw_x=4&sw_y=51.8&ne_x=4.6000000000000005&ne_y=52&zoom=12&fleet=&station=0',[],page) do |jsonpage|
+    a.get('http://www.marinetraffic.com/map/getjson/sw_x:4.00000/sw_y:51.80000/ne_x:4.60000/ne_y:52.20000/zoom:12/station:0',[],page) do |jsonpage|
       str = jsonpage.body
       str.gsub!(",,",",0,")
       str.gsub!("--","0")

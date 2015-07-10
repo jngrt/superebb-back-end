@@ -1,2 +1,3 @@
 test.db
 heroku_env.rb
+.DS_Store
